@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Limbus Company Fan Site + QTE Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+ body {
+   margin: 0;
+   font-family: 'Noto Sans JP', sans-serif;
+   background: #0d0d0d;
+   color: #fff;
+ }
+ header {
+   background: #000;
+   padding: 20px;
+   text-align: center;
+   border-bottom: 2px solid #444;
+ }
+ h1 {
+   margin: 0;
+ }
+ nav {
+   display: flex;
+   justify-content: center;
+   gap: 30px;
+   margin-top: 10px;
+ }
+ nav a {
+   color: #f0d98a;
+   text-decoration: none;
+   font-weight: bold;
+   cursor: pointer;
+ }
+ section {
+   padding: 40px 20px;
+   max-width: 1000px;
+   margin: auto;
+ }
+ /* キャラクターカード */
+ .character-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+   gap: 20px;
+ }
+ .card {
+   background: #1a1a1a;
+   padding: 15px;
+   border-radius: 10px;
+   border: 1px solid #333;
+   text-align: center;
+ }
+ .card img {
+   width: 100%;
+   border-radius: 8px;
+ }
+ /* QTE GAME */
+ #qte-area {
+   margin-top: 40px;
+   background: #111;
+   padding: 30px;
+   border-radius: 12px;
+   border: 1px solid #333;
+   text-align: center;
+ }
+ #bar-container {
+   width: 80%;
+   height: 30px;
+   background: #333;
+   border-radius: 20px;
+   margin: 20px auto;
+   position: relative;
+   overflow: hidden;
+ }
+ #target-zone {
+   position: absolute;
+   left: 40%;
+   width: 20%;
+   height: 100%;
+   background: #b00000;
+   opacity: 0.8;
+ }
+ #moving-bar {
+   position: absolute;
+   left: 0;
+   width: 8%;
+   height: 100%;
+   background: gold;
+   border-radius: 20px;
+ }
+ #result-text {
+   margin-top: 15px;
+   font-size: 24px;
+   height: 30px;
+ }
+
+ /* --- Limbus風UI強化 --- */
+ header {
+   background: linear-gradient(90deg, #000, #1a1a1a 50%, #000);
+   border-bottom: 3px solid #c8aa6e;
+ }
+ nav a {
+   color: #c8aa6e;
+   font-weight: 700;
+   padding-bottom: 4px;
+   border-bottom: 2px solid transparent;
+   transition: 0.2s;
+ }
+ nav a:hover {
+   border-bottom: 2px solid #c8aa6e;
+ }
+
+ /* カード装飾を強化 */
+ .card {
+   background: #111;
+   border: 1px solid #39322b;
+   box-shadow: 0 0 10px rgba(200,170,110,0.2);
+   transition: 0.3s;
+ }
+ .card:hover {
+   transform: scale(1.04);
+   box-shadow: 0 0 20px rgba(200,170,110,0.35);
+ }
+
+ /* タイトルを金色の下線で強調 */
+ h2 {
+   border-left: 6px solid #c8aa6e;
+   padding-left: 12px;
+ }
+
+ /* --- QTE UI改善 --- */
+ #qte-area {
+   border: 1px solid #5b4b2f;
+   box-shadow: 0 0 20px rgba(200,170,110,0.25);
+ }
+ #bar-container {
+   background: #222;
+   border: 2px solid #5b4b2f;
+ }
+ #target-zone {
+   background: linear-gradient(90deg, rgba(176,0,0,0.8), rgba(255,60,60,0.8));
+ }
+ #moving-bar {
+   background: linear-gradient(90deg, #fff4c2, #d7b45c);
+   box-shadow: 0 0 10px rgba(255,215,110,0.8);
+ }
+ #result-text {
+   font-weight: bold;
+   text-shadow: 0 0 10px rgba(255,255,255,0.6);
+ }
+</style>
+</head>
+<body>
+<header>
+  <h1>Limbus Company Fan Site + QTE Game</h1>
+  <nav>
+    <a onclick="showSection('characters')">キャラクター</a>
+    <a onclick="showSection('qte')">QTEゲーム</a>
+  </nav>
+</header>
+
+<!-- キャラクター一覧 -->
+<section id="characters">
+  <h2>キャラクター一覧</h2>
+  <div class="character-grid" id="char-list"></div>
+</section>
+
+<!-- QTEゲーム -->
+<!-- ▼ 再戦ボタン（常時表示） -->
+<button id="retry-btn" onclick="resetGame()" style="margin:15px;padding:8px 14px;border-radius:8px;cursor:pointer;">再戦する</button>
+
+<section id="char-select">
+  <h2>キャラ選択</h2>
+  <div class="card-container">
+    <div class="char-card" onclick="selectChar('イサン',120)">
+      <h3>イサン</h3>
+      <p>HP 120</p>
+    </div>
+    <div class="char-card" onclick="selectChar('ファウスト',100)">
+      <h3>ファウスト</h3>
+      <p>HP 100</p>
+    </div>
+    <div class="char-card" onclick="selectChar('ドンキホーテ',90)">
+      <h3>ドンキホーテ</h3>
+      <p>HP 90</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .card-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .char-card {
+    width: 140px;
+    padding: 15px;
+    border-radius: 12px;
+    background: #1e1e1e;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .char-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+    background: #292929;
+  }
+  .char-card h3 {
+    margin: 0 0 8px;
+  }
+  /* =========================
+   スマホ対応（幅768px以下）
+   ========================= */
+@media screen and (max-width: 768px) {
+
+  body {
+    font-size: 14px;
+  }
+
+  header {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  nav {
+    gap: 16px;
+  }
+
+  nav a {
+    font-size: 14px;
+  }
+
+  section {
+    padding: 24px 12px;
+  }
+
+  /* キャラクター一覧 */
+  .character-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .card {
+    padding: 10px;
+  }
+
+  .card h3 {
+    font-size: 14px;
+  }
+
+  .card p {
+    font-size: 12px;
+  }
+
+  /* キャラ選択 */
+  .card-container {
+    gap: 12px;
+  }
+
+  .char-card {
+    width: 120px;
+    padding: 12px;
+  }
+
+  .char-card h3 {
+    font-size: 14px;
+  }
+
+  .char-card p {
+    font-size: 12px;
+  }
+
+  /* バトル画面 */
+  #battle-area {
+    padding: 16px;
+  }
+
+  #battle-log {
+    font-size: 12px;
+  }
+
+  .skill-btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  /* 再戦ボタン */
+  #retry-btn {
+    width: 90%;
+    margin: 10px auto;
+    display: block;
+  }
+}
+
+/* =========================
+   超小型端末（幅480px以下）
+   ========================= */
+@media screen and (max-width: 480px) {
+
+  .character-grid {
+    grid-template-columns: 1fr;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+}
+
+</style>
+
+<section id="qte" style="display:none;" style="display:none;">
+  <h2>簡易バトルゲーム</h2>
+  <div id="battle-area" style="background:#111;border:1px solid #5b4b2f;padding:25px;border-radius:12px;max-width:600px;margin:auto;">
+    <h3>敵とターン制バトル！</h3>
+
+    <div id="battle-stats" style="margin-bottom:20px;">
+      <p>味方 HP：<span id="ally-hp">100</span></p>
+      <p>敵 HP：<span id="enemy-hp">100</span></p>
+    </div>
+
+    <div id="skill-buttons" style="margin-bottom:20px;">
+      <button onclick="useSkill(0)" class="skill-btn">斬撃 (20 dmg)</button>
+      <button onclick="useSkill(1)" class="skill-btn">刺突 (15 dmg)</button>
+      <button onclick="useSkill(2)" class="skill-btn">打撃 (25 dmg / 命中低)</button>
+    </div>
+
+    <div id="battle-log" style="height:120px;overflow-y:auto;background:#000;padding:10px;border-radius:8px;border:1px solid #333;font-size:14px;"></div>
+  </div>
+</section>
+
+<script>
+/* ▼ キャラデータ（前ページで使用していたもの） ▼ */
+const CHARACTERS = [
+  { name: "イサン", img: "html/1_isan.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Yi_Sang"},
+  { name: "ファウスト", img: "html/2_faust.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Faust"},
+  { name: "ドン・キホーテ", img: "html/3_kiho-te.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Don_Quixote" },
+  { name: "良秀", img: "html/4_ryosyu.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Ryōshū" },
+  { name: "ムルソー", img: "html/5_meruso.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Meursault" },
+  { name: "ホンル", img: "html/6_baoyu.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Hong_Lu" },
+  { name: "ヒースクリフ", img: "html/7_hi-su.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Heathcliff" },
+  { name: "イシュメール", img: "html/8_isyu.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Ishmael" },
+  { name: "ロージャ", img: "html/9_rodya.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Rodion" },
+  { name: "シンクレア", img: "html/10_sinkrea.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Sinclair" },
+  { name: "ウーティス", img: "html/11_u-this.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Outis" },
+  { name: "グレゴール", img: "html/12_gregor.png", group: "Limbus Company", wiki: "https://limbuscompany.wiki.gg/wiki/Gregor" }
+];
+
+
+/* ▼ キャラ表示 ▼ */
+const list = document.getElementById("char-list");
+CHARACTERS.forEach(c => {
+  const div = document.createElement("div");
+  div.className = "card";
+  div.innerHTML = `
+  <a href="${c.wiki}" target="_blank" rel="noopener noreferrer">
+    <img src="${c.img}" alt="${c.name}">
+  </a>
+  <h3>${c.name}</h3>
+  <p>${c.group}</p>
+`;
+
+  list.appendChild(div);
+});
+
+/* ▼ セクション切り替え ▼ */
+function showSection(id) {
+  document.getElementById("characters").style.display = "none";
+  document.getElementById("qte").style.display = "none";
+  document.getElementById(id).style.display = "block";
+}
+
+/* ▼ バトルシステム ▼ */
+let allyHP = 100;
+let selectedChar = null;
+let enemyHP = 100;
+
+const allyText = document.getElementById("ally-hp");
+const enemyText = document.getElementById("enemy-hp");
+const log = document.getElementById("battle-log");
+
+function addLog(text){
+  log.innerHTML += text + "<br>";
+  log.scrollTop = log.scrollHeight;
+}
+
+function selectChar(name, hp){
+  selectedChar = name;
+  allyHP = hp;
+  document.getElementById('ally-hp').textContent = allyHP;
+  document.getElementById('char-select').style.display = 'none';
+  document.getElementById('qte').style.display = 'block';
+  addLog(`${name} が参戦！`);
+}
+
+function useSkill(id){
+  if(enemyHP <= 0 || allyHP <= 0) return;
+
+  let dmg = 0;
+  if(id === 0) dmg = 20;
+  if(id === 1) dmg = 15;
+  if(id === 2){
+    if(Math.random() < 0.6) dmg = 25; else { addLog("打撃は外れた！"); enemyTurn(); return; }
+  }
+
+  enemyHP -= dmg;
+  if(enemyHP < 0) enemyHP = 0;
+  enemyText.textContent = enemyHP;
+  addLog(`味方の攻撃！ ${dmg} ダメージ！`);
+
+  if(enemyHP <= 0){ addLog("敵を倒した！勝利！"); return; }
+
+  enemyTurn();
+}
+
+function enemyTurn(){
+  const dmg = Math.floor(Math.random()*15)+5;
+  allyHP -= dmg;
+  if(allyHP < 0) allyHP = 0;
+  allyText.textContent = allyHP;
+  addLog(`敵の反撃！ ${dmg} ダメージ！`);
+
+  if(allyHP <= 0){ addLog("味方は倒れた…… 敗北。"); }
+}
+
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Space") {
+    if (pos >= targetStart && pos <= targetEnd) {
+      resultText.textContent = "Perfect!";
+      resultText.style.color = "gold";
+    } else {
+      resultText.textContent = "Miss";
+      resultText.style.color = "red";
+    }
+  }
+});
+
+  // ▼ 再戦処理を追加
+function resetGame(){
+  // 選択キャラをリセット
+  selectedChar = null;
+
+  // HPリセット
+  allyHP = 100;
+  enemyHP = 100;
+  document.getElementById('ally-hp').textContent = allyHP;
+  document.getElementById('enemy-hp').textContent = enemyHP;
+
+  // ログリセット
+  document.getElementById('battle-log').innerHTML = '';
+
+  // 画面切り替え
+  document.getElementById('qte').style.display = 'none';
+  document.getElementById('char-select').style.display = 'block';
+}
+
+</script>
+</body>
+</html>
